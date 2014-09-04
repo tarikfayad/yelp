@@ -32,6 +32,11 @@
         NSLog(@"%@", locations);
     }];
     
+    [TMFYelpAPIClient fetchYelpLocationsOfType:@"restaurant" atLatitude:@"40.75609804" andLongitude:@"-73.9857880" withinRadius:@10000 withCompletion:^(NSDictionary *locations) {
+        NSLog(@"%@", locations);
+        NSLog(@"%lu", (unsigned long)[[locations allKeys] count]);
+    }];
+    
 }
 
 - (void)didReceiveMemoryWarning {

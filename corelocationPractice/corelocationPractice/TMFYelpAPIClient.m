@@ -74,6 +74,37 @@ NSString *const TOKEN_SECRET = @"TlOeGtZdmOOUZyh-ILGDDHZOPis";
     [task resume];
 }
 
+
++ (void)fetchYelpLocationsOfType:(NSString *)type atLatitude:(NSString *)latitude andLongitude:(NSString *)longitude withinRadius:(NSNumber *)radius withCompletion:(void (^)(NSDictionary *))completionBlock
+{
+    NSMutableString *urlString = [NSMutableString stringWithFormat:@"http://api.yelp.com/v2/search?term=%@", type];
+    [urlString appendString:[NSString stringWithFormat:@"&ll=%@,%@", latitude, longitude]];
+    [urlString appendString:[NSString stringWithFormat:@"&radius_filter=%@",radius]];
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    
+    OAConsumer *consumer = [[OAConsumer alloc] initWithKey:CONSUMER_KEY secret:CONSUMER_SECRET];
+    OAToken *token = [[OAToken alloc] initWithKey:TOKEN secret:TOKEN_SECRET];
+    
+    id <OASignatureProviding, NSObject> provider = [OAHMAC_SHA1SignatureProvider new];
+    
+    OAMutableURLRequest *request = [[OAMutableURLRequest alloc]
+                                    initWithURL:url
+                                    consumer:consumer
+                                    token:token
+                                    realm:nil
+                                    signatureProvider:provider];
+    
+    [request prepare];
+    
+    NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSDictionary *locations = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        completionBlock(locations);
+    }];
+    
+    [task resume];
+}
+
 //#pragma mark - OAuth Methods
 //+ (OAMutableURLRequest *) generateOARequestWithURL: (NSURL *)url andRealm: (NSString *) realm
 //{
